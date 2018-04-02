@@ -29,10 +29,6 @@ class Activity_controller extends \my_calendar_server_reborn\controller\api\v1_b
         $images = app\Preview_image::all();
         $image_types = app\Preview_image_type::all();
         
-        foreach ($images as $k => $v) {
-            $images[$k]['image'] = TOPIC_URL . "/" . $v['image'];
-        }
-        
         return $this->op("preview_images_list", ['images' => $images, "image_types" => $image_types]);
     }
 

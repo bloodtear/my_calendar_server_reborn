@@ -18,12 +18,20 @@ class Preview_image {
         return $this->mSummary["id"];
     }
 
+    public function type() {
+        return $this->mSummary["type"];
+    }
+    
     public function image() {
         return $this->mSummary["image"];
     }
+    
     public function url() {
-        $image = $this->image();
-        return TOPIC_URL . "/$image";
+        return TOPIC_URL . "/" . $this->image();
+    }
+    
+    public function thumbnail_url() {
+        TOPIC_THUMBNAIL_URL . "/thumbnail-" . $this->image();
     }
 
     public function setName($n) {
@@ -48,6 +56,8 @@ class Preview_image {
        return array(
             "id" => $this->id(),
             "url" => $this->url(), 
+            "type" => $this->type(), 
+            "thumbnail_url" => $this->thumbnail_url(), 
         );
     }
 
@@ -57,7 +67,14 @@ class Preview_image {
     }
 
     public static function all() {
-        return database\Db_preview_image::inst()->all();
+        $summary = database\Db_preview_image::inst()->all();
+        \framework\Logging::l('pr_all', json_encode($summary));
+        $arr = [];
+        foreach ($summary as $k => $v) {
+            $img = new Preview_image($v);
+            array_push($arr, $img->packInfo());
+        }
+        return $arr;
     }
 
     public static function &cachedAll() {
@@ -76,6 +93,10 @@ class Preview_image {
     
     public static function get_url_from_name($name) {
         return TOPIC_URL . "/$name";
+    }
+    
+    public static function get_thumbnail_url_from_name($name) {
+        return TOPIC_THUMBNAIL_URL . "/thumbnail-" . $name;
     }
 };
 

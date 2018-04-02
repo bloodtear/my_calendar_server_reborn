@@ -40,6 +40,10 @@ class Activity {
     public function avatar_detail() {
 		return isset($this->mSummary["avatar_name"]) ? Preview_image::get_url_from_name($this->mSummary["avatar_name"]) : '';
     }
+    
+    public function avatar_thumbnail_detail() {
+		return isset($this->mSummary["avatar_name"]) ? Preview_image::get_thumbnail_url_from_name($this->mSummary["avatar_name"]) : '';
+    }
 
     public function images() {
         $images = $this->mSummary["images"];
@@ -307,6 +311,7 @@ class Activity {
             "owner" => $detail ? $this->owner_detail() : null,
             "title" => $this->title(),
             "avatar_detail" => $this->avatar_detail(),
+            "avatar_thumbnail_detail" => $this->avatar_thumbnail_detail(),
             "images" => $this->images(),
             "image_url_list" => $this->image_url_list(),
             "image_thumbnail_url_list" => $this->image_thumbnail_url_list(),
