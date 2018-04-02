@@ -31,7 +31,7 @@ class Preview_image {
     }
     
     public function thumbnail_url() {
-        TOPIC_THUMBNAIL_URL . "/thumbnail-" . $this->image();
+        return TOPIC_THUMBNAIL_URL . "/thumbnail-" . $this->image();
     }
 
     public function setName($n) {
