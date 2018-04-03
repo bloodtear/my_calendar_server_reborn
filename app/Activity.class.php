@@ -506,9 +506,9 @@ class Activity {
         }
 
         $array = self::get_repeat_zone_from_list ($my_list);
-        $data = array("my_list" => $array);
+        //data = array("my_list" => $array);
         
-        return $data;
+        return $array;
         
     }
     
@@ -534,9 +534,9 @@ class Activity {
         
         // 提取重复活动的siblings,存入数组
         $array = self::get_repeat_zone_from_list ($my_list);
-        $data = array("my_list" => $array);
+        //$data = array("my_list" => $array);
         
-        return $data;
+        return $array;
         
     }
     

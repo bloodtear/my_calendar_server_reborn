@@ -58,6 +58,14 @@ class Activity_type_controller extends \my_calendar_server_reborn\controller\api
         $my_subscribed_list = app\Activity::my_subscribed_list($userid);
 
         $arr = [];
+        
+        if (!empty($my_types)) {
+            $type = new \stdClass;
+            $type->title = '全部';
+            $type->pub = 0;
+            $type->id = 0;
+            array_push($arr, $type);
+        }
         if (!empty($my_joined_list)) {
             $type = new \stdClass;
             $type->title = '我加入的';

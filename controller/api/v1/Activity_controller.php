@@ -43,9 +43,10 @@ class Activity_controller extends \my_calendar_server_reborn\controller\api\v1_b
         $userid = get_session('userid');
 
         $my_list = app\Activity::get_my_list_by_type($userid, $choosed_type);
-
+        $thiz_type = ($choosed_type != 0 ? app\Activity_type::view_by_user($choosed_type, $userid) : null);
+        
         \framework\Logging::d("ret", json_encode($my_list));
-        return $this->op("all_my_list", $my_list);
+        return $this->op("all_my_list", ['my_list' => $my_list, 'thiz_type' => ($thiz_type ? $thiz_type->packInfo() : null)]);
         
     }
         
