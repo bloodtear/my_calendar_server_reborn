@@ -72,88 +72,136 @@ class Db_activity extends fdb\Database_table {
                 a.*, 
                 b.title type_title, 
                 b.pub pub,
-                p1.image avatar_name
+                p1.image avatar_name,
+                count(DISTINCT sub1.id) now_sub,
+                count(DISTINCT sign1.id) now_join
             from 
                 my_calendar_activity a 
-            JOIN 
+            left JOIN 
                 my_calendar_custom_activity_types b 
             on 
                 a.type = b.id 
-            join 
+            left join 
                 my_calendar_preview_images p1
             on 
                 p1.id = a.avatar
+            left join 
+                my_calendar_sign sign1
+            on 
+                a.id = sign1.activity
+            left join 
+                my_calendar_subscribe sub1
+            on 
+                a.id = sub1.activity
             where 
-                a.owner = $userid";
+                a.owner = $userid
+            GROUP BY 
+                a.id";
 
         $my_joined = "
             select 
                 d.*, 
                 e.title type_title, 
                 e.pub pub,
-                p2.image avatar_name
+                p2.image avatar_name,
+                count(DISTINCT sub2.id) now_sub,
+                count(DISTINCT sign2.id) now_join
             from 
                 my_calendar_sign f 
-            join 
+            left join 
                 my_calendar_activity d 
             on 
                 f.activity = d.id 
-            join 
+            left join 
                 my_calendar_custom_activity_types e 
             on 
                 d.type = e.id 
-            join 
+            left join 
                 my_calendar_preview_images p2
             on 
                 p2.id = d.avatar
+            left join 
+                my_calendar_sign sign2
+            on 
+                f.activity = sign2.activity
+            left join 
+                my_calendar_subscribe sub2
+            on 
+                f.activity = sub2.activity
             where 
-                f.tempid = $userid";
+                f.tempid = $userid
+            GROUP BY 
+                f.activity";
                 
         $my_subscribed = "
             select 
                 y.*, 
                 z.title type_title, 
                 z.pub,
-                p3.image avatar_name
+                p3.image avatar_name,
+                count(DISTINCT sub3.id) now_sub,
+                count(DISTINCT sign3.id) now_join
             from 
                 my_calendar_subscribe x 
-            join 
+            left join 
                 my_calendar_activity y 
             on 
                 x.activity = y.id 
-            join 
+            left join 
                 my_calendar_custom_activity_types z 
             on 
                 z.id = y.type  
-            join 
+            left join 
                 my_calendar_preview_images p3
             on 
                 p3.id = y.avatar
+            left join 
+                my_calendar_sign sign3
+            on 
+                x.activity = sign3.activity
+            left join 
+                my_calendar_subscribe sub3
+            on 
+                x.activity = sub3.activity
             where 
-                x.tempid = $userid";
+                x.tempid = $userid 
+            GROUP BY 
+                x.activity";
                 
         $my_subscribed_type = "
             select 
                 ay.*, 
                 az.title type_title, 
                 az.pub,
-                p4.image avatar_name
+                p4.image avatar_name,
+                count(DISTINCT sub4.id) now_sub,
+                count(DISTINCT sign4.id) now_join
             from 
                 my_calendar_subscribe_type ax 
-            join 
+            right join 
                 my_calendar_activity ay 
             on 
                 ay.type = ax.typeid
-            join 
+            left join 
                 my_calendar_custom_activity_types az 
             on 
                 az.id = ay.type
-            join 
+            left join 
                 my_calendar_preview_images p4
             on 
                 p4.id = ay.avatar
+            left join 
+                my_calendar_sign sign4
+            on 
+                ay.id = sign4.activity
+            left join 
+                my_calendar_subscribe sub4
+            on 
+                ay.id = sub4.activity
             where 
-                ax.tempid = $userid";
+                ax.tempid = $userid
+            group by 
+                ay.id";
                 
         $sql = "
             $my_create
@@ -166,6 +214,7 @@ class Db_activity extends fdb\Database_table {
         return Db_base::inst()->do_query($sql);
     }
     
+    // 已添加now_join, now_sub
     public static function my_list_by_type($userid, $choosed_type){
         $sql = "
         select 
@@ -173,7 +222,8 @@ class Db_activity extends fdb\Database_table {
             b.title type_title, 
             b.pub pub,
             p.image avatar_name,
-            count(s.activity) now_join
+            count(s.activity) now_join,
+            count(distinct sub.id) now_sub
         from 
             my_calendar_activity a 
         left JOIN 
@@ -188,6 +238,10 @@ class Db_activity extends fdb\Database_table {
             my_calendar_sign s
         on 
             a.id = s.activity
+        left join 
+            my_calendar_subscribe sub
+        on 
+            sub.activity = a.id
         where 
             a.type = $choosed_type
         group by 
@@ -196,7 +250,7 @@ class Db_activity extends fdb\Database_table {
         return Db_base::inst()->do_query($sql);
     }
     
-    // 已添加now_join
+    // 已添加now_join, now_sub
     public static function my_joined_list($userid){
         $sql = "
         select 
@@ -204,7 +258,8 @@ class Db_activity extends fdb\Database_table {
             e.title type_title, 
             e.pub pub,
             p.image avatar_name,
-            count(s.activity) now_join
+            count(distinct s.id) now_join,
+            count(distinct sub.id) now_sub
         from 
             my_calendar_sign f 
         left join 
@@ -219,26 +274,32 @@ class Db_activity extends fdb\Database_table {
             my_calendar_preview_images p
         on 
             p.id = d.avatar
-        inner join 
+        left join 
             my_calendar_sign s
         on 
             d.id = s.activity
+        left join 
+            my_calendar_subscribe sub
+        on 
+            sub.activity = f.activity
         where 
             f.tempid = $userid
         group by 
-            s.activity;
+            f.activity;
         ";
         return Db_base::inst()->do_query($sql);
     }    
     
-
+    // 已添加now_join, now_sub
     public static function my_subscribed_list($userid){
         $sql = "
             select 
                 b.*, 
                 c.title type_title, 
                 c.pub,
-                p.image avatar_name
+                p.image avatar_name,
+                count(distinct sub.id) now_sub,
+                count(distinct sign.id) now_join
             from 
                 my_calendar_subscribe a 
             left join 
@@ -253,30 +314,54 @@ class Db_activity extends fdb\Database_table {
                 my_calendar_preview_images p
             on 
                 p.id = b.avatar
+            left join 
+                my_calendar_sign sign
+            on 
+                sign.activity = a.activity
+            left join 
+                my_calendar_subscribe sub
+            on 
+                sub.activity = a.activity
             where 
-                a.tempid = $userid";
+                a.tempid = $userid
+            group by 
+                a.activity;
+            ";
         return Db_base::inst()->do_query($sql);
     }
     
+    // 已添加now_join, now_sub
     public static function share_list($choosed_type){
         $sql = "
         select 
             a.*, 
             b.title type_title, 
             b.pub pub,
-            p.image avatar_name
+            p.image avatar_name,
+            count(distinct sub.id) now_sub,
+            count(distinct s.id) now_join
         from 
             my_calendar_activity a 
-        JOIN 
+        left JOIN 
             my_calendar_custom_activity_types b 
         on 
             a.type = b.id 
-        join 
+        left join 
             my_calendar_preview_images p
         on 
             p.id = a.avatar
+        left join 
+            my_calendar_sign s
+        on 
+            a.id = s.activity
+        left join 
+            my_calendar_subscribe sub
+        on 
+            a.id = sub.activity
         where 
-            a.type = $choosed_type";
+            a.type = $choosed_type
+        GROUP BY
+            a.id";
         return Db_base::inst()->do_query($sql);
     }
 

@@ -137,8 +137,13 @@ class Activity {
     public function participants() {
         return $this->mSummary["participants"];
     }
+    
     public function now_join() {
-        return isset($this->mSummary["now_join"]) ? count($this->mSummary["now_join"]) : 0;
+        return isset($this->mSummary["now_join"]) ? $this->mSummary["now_join"] : 0;
+    }
+    
+    public function now_sub() {
+        return isset($this->mSummary["now_sub"]) ? $this->mSummary["now_sub"] : 0;
     }
     
     public function now_participants() {
@@ -337,6 +342,7 @@ class Activity {
             "repeat_time_zone" => $this->repeat_time_zone(),
             "joinsheet" => $this->joinsheet(),
             "now_join" => $this->now_join(),
+            "now_sub" => $this->now_sub(),
         );
     }
 
