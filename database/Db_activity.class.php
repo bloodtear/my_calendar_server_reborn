@@ -222,7 +222,7 @@ class Db_activity extends fdb\Database_table {
             b.title type_title, 
             b.pub pub,
             p.image avatar_name,
-            count(s.activity) now_join,
+            count(distinct s.id) now_join,
             count(distinct sub.id) now_sub
         from 
             my_calendar_activity a 
