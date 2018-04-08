@@ -172,50 +172,66 @@ class Db_activity extends fdb\Database_table {
             a.*, 
             b.title type_title, 
             b.pub pub,
-            p.image avatar_name
+            p.image avatar_name,
+            count(s.activity) now_join
         from 
             my_calendar_activity a 
-        JOIN 
+        left JOIN 
             my_calendar_custom_activity_types b 
         on 
             a.type = b.id 
-        join 
+        left join 
             my_calendar_preview_images p
         on 
             p.id = a.avatar
+        left join 
+            my_calendar_sign s
+        on 
+            a.id = s.activity
         where 
             a.type = $choosed_type
+        group by 
+            a.id;
         ";
         return Db_base::inst()->do_query($sql);
     }
     
+    // 已添加now_join
     public static function my_joined_list($userid){
         $sql = "
         select 
             d.*, 
             e.title type_title, 
             e.pub pub,
-            p.image avatar_name
+            p.image avatar_name,
+            count(s.activity) now_join
         from 
             my_calendar_sign f 
-        join 
+        left join 
             my_calendar_activity d 
         on 
             f.activity = d.id 
-        join 
+        left join 
             my_calendar_custom_activity_types e 
         on 
             d.type = e.id 
-        join 
+        left join 
             my_calendar_preview_images p
         on 
             p.id = d.avatar
+        inner join 
+            my_calendar_sign s
+        on 
+            d.id = s.activity
         where 
-            f.tempid = $userid;
+            f.tempid = $userid
+        group by 
+            s.activity;
         ";
         return Db_base::inst()->do_query($sql);
     }    
     
+
     public static function my_subscribed_list($userid){
         $sql = "
             select 
@@ -225,15 +241,15 @@ class Db_activity extends fdb\Database_table {
                 p.image avatar_name
             from 
                 my_calendar_subscribe a 
-            join 
+            left join 
                 my_calendar_activity b 
             on 
                 a.activity = b.id 
-            join 
+            left join 
                 my_calendar_custom_activity_types c 
             on 
                 c.id = b.type
-            join 
+            left join 
                 my_calendar_preview_images p
             on 
                 p.id = b.avatar

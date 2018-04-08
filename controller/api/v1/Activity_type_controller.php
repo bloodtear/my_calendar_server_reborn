@@ -60,18 +60,26 @@ class Activity_type_controller extends \my_calendar_server_reborn\controller\api
         $arr = [];
         
         if (!empty($my_types)) {
-            $type = new \stdClass;
-            $type->title = '全部';
-            $type->pub = 0;
-            $type->id = 0;
-            array_push($arr, $type);
+            $all_type = new \stdClass;
+            $all_type->title = '全部';
+            $all_type->pub = 0;
+            $all_type->id = 0;
+            $num = 0;
+            foreach ($my_types as $type) {
+                $num += $type['num'];
+                array_push($arr, $type);
+            }
+            
+            $all_type->num = $num;
+
         }
         if (!empty($my_joined_list)) {
             $type = new \stdClass;
             $type->title = '我加入的';
             $type->pub = 0;
             $type->id = -1;
-            array_push($arr, $type);
+            $type->num = count($my_joined_list);
+            array_unshift($arr, $type);
         }
         
         if (!empty($my_subscribed_list)) {
@@ -79,12 +87,11 @@ class Activity_type_controller extends \my_calendar_server_reborn\controller\api
             $type->title = '我关注的';
             $type->pub = 0;
             $type->id = -2;
-            array_push($arr, $type);
+            $type->num = count($my_subscribed_list);
+            array_unshift($arr, $type);
         }
         
-        foreach ($my_types as $type) {
-            array_push($arr, $type);
-        }
+        array_unshift($arr, $all_type);
         
         $data = ["my_types" => $arr];
         return $this->op("my_custom_types", $data);

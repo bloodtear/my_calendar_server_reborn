@@ -28,6 +28,10 @@ class Activity_type {
 	
     public function tempid() {
         return $this->mSummary["tempid"];
+    }	
+    
+    public function num() {
+        return isset($this->mSummary["num"]) ? $this->mSummary["num"] : 0;
     }
 	
     public function editable() {
@@ -72,6 +76,7 @@ class Activity_type {
             "tempid" => $this->tempid(), 
             "editable" => $this->editable(), 
             "subscribed" => $this->subscribed(), 
+            "num" => $this->num(), 
         );
     }
     

@@ -137,6 +137,9 @@ class Activity {
     public function participants() {
         return $this->mSummary["participants"];
     }
+    public function now_join() {
+        return isset($this->mSummary["now_join"]) ? count($this->mSummary["now_join"]) : 0;
+    }
     
     public function now_participants() {
         return isset($this->mSummary["sign_list"]) ? count($this->mSummary["sign_list"]) : 0;
@@ -333,6 +336,7 @@ class Activity {
             "detail_qcode" => $this->detail_qcode(),
             "repeat_time_zone" => $this->repeat_time_zone(),
             "joinsheet" => $this->joinsheet(),
+            "now_join" => $this->now_join(),
         );
     }
 

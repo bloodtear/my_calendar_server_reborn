@@ -55,29 +55,51 @@ class Db_custom_activity_type extends fdb\Database_table {
     
      
     public static function my_types($userid){
+        
         $my_subscribed_type = "
             select 
-                b.*, 0 as editable ,1 as subscribed
+                b.*, 
+                0 as editable ,
+                1 as subscribed,
+                count(act.id) num
             from 
-                my_calendar_subscribe_type a 
-            join 
-                my_calendar_custom_activity_types b 
+                    my_calendar_subscribe_type a 
+            inner join 
+                    my_calendar_custom_activity_types b 
             on 
-                a.typeid = b.id 
+                    a.typeid = b.id 
+            left JOIN
+                my_calendar_activity act
+            on 
+                    act.type = a.typeid
             where 
-                a.tempid = $userid";
+                    a.tempid = $userid
+            group by 
+                    a.typeid
+            ";
+            
         $my_owned = "
             select 
-                c.*, 1 as editable ,0 as subscribed
+                c.*, 
+                1 as editable ,
+                0 as subscribed,
+                count(z.id) num
             from 
                 my_calendar_custom_activity_types c 
+            left join 
+                my_calendar_activity z
+            ON
+                c.id = z.type
             where 
-                c.tempid = $userid";
+                c.tempid = $userid
+            group by 
+                c.id";
                 
         $sql = "
             $my_owned
                 UNION
             $my_subscribed_type";
+            
         return Db_base::inst()->do_query($sql);
     }
     
