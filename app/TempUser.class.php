@@ -42,6 +42,10 @@ class TempUser extends User {
     public function unionid() {
         return $this->mSummary["unionid"];
     }
+    
+    public function is_union() {
+        return !empty($this->mSummary["unionid"]) ? true : false;
+    }
 
     public function calendar_session() {
         return $this->mSummary["calendar_session"];
@@ -134,7 +138,8 @@ class TempUser extends User {
             "avatar" => $this->avatar(), 
             "token" => $this->token(), 
             "status" => $this->status(), 
-            "calendar_session" => $this->calendar_session()
+            "calendar_session" => $this->calendar_session(),
+            "is_union" => $this->is_union()
             //"groups" => $groupInfo
         );
     }
