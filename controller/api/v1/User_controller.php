@@ -18,23 +18,33 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
             \framework\Logging::d("LOGIN", "avatar:" . $avatar);
             $user = app\TempUser::oneBySession($calendar_session); //拿到具体的tempuser信息,tempuser是wx小程序的user,
             
-            if (empty($user)) {                             //如果没有对应的user，就创建一个。    
+            
+            if (empty($user)  || empty($user->unionid())) { 
+                
                 $code = get_request('code', '');
-                $wx_auth_ret = app\Wxapi::wx_auth($code);   //获取openid
+                $wx_auth_ret = app\Wxapi::wx_auth($code);   //获取openid,unionid
+                \framework\Logging::d("LOGIN", "wx_auth_ret:" . json_encode($wx_auth_ret));
+                
                 if (!empty($wx_auth_ret->errcode)){
                     return array('op' => 'fail', 'code' => $wx_auth_ret->errcode, 'reason' => $wx_auth_ret->errmsg);
                 }
+                
+
+                
                 $openid = $wx_auth_ret->openid;
+                $unionid = isset($wx_auth_ret->unionid) ? $wx_auth_ret->unionid : '';
                 $session_key = $wx_auth_ret->session_key;
                 $calendar_session = md5(time() . $openid . $session_key);
                 $token = md5(time());
-
-                $user = app\TempUser::createByOpenid($openid);  //创建TempUser,修改属性，保存
+                
+                $user = app\TempUser::createByOpenid($openid);  //创建TempUser,修改属性，保存   
                 $user->setOpenId($openid);
                 $user->setSessionKey($session_key);
+                $user->setUnionId($unionid);
                 $user->setToken($token);
                 $user->setSession($calendar_session);
                 \framework\Logging::d("LOGIN", "calendar_session now is :" . $calendar_session);
+                
             }
             
             $user->setAvatar($avatar);

@@ -38,13 +38,17 @@ class TempUser extends User {
     public function openid() {
         return $this->mSummary["openid"];
     }
+    
+    public function unionid() {
+        return $this->mSummary["unionid"];
+    }
 
     public function calendar_session() {
         return $this->mSummary["calendar_session"];
     }
 
     public function session_key () {
-        return $this->mSummary["session_key "];
+        return $this->mSummary["session_key"];
     }
 
     public function uid() {
@@ -99,6 +103,9 @@ class TempUser extends User {
     public function setOpenId($n) {
         $this->mSummary["openid"] = $n;
     }
+    public function setUnionId($n) {
+        $this->mSummary["unionid"] = $n;
+    }
 	  public function setUId($n) {
         $this->mSummary["uid"] = $n;
     }
@@ -107,13 +114,13 @@ class TempUser extends User {
     public function save() {
         $id = $this->id();
         if ($id == 0) {
-            $id = database\Db_tempuser::inst()->add($this->openid(), $this->uid(), $this->nickname(), $this->avatar(), $this->create_time(),  $this->last_login(), $this->token(),  $this->status(), $this->calendar_session());
+            $id = database\Db_tempuser::inst()->add($this->openid(), $this->uid(), $this->nickname(), $this->avatar(), $this->create_time(),  $this->last_login(), $this->token(),  $this->status(), $this->calendar_session(), $this->unionid(), $this->session_key());
             if ($id !== false) {
                 $this->mSummary["id"] = $id;
                 $ret = db_custom_activity_type::inst()->default_init($id);
             }
         } else {
-            $id = database\Db_tempuser::inst()->modify($id, $this->openid(), $this->uid(), $this->nickname(), $this->avatar(), $this->create_time(), $this->last_login(), $this->token(),  $this->status(), $this->calendar_session());
+            $id = database\Db_tempuser::inst()->modify($id, $this->openid(), $this->uid(), $this->nickname(), $this->avatar(), $this->create_time(), $this->last_login(), $this->token(),  $this->status(), $this->calendar_session(), $this->unionid(), $this->session_key());
         }
         return $id;
     }
