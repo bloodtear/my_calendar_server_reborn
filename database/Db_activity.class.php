@@ -40,7 +40,7 @@ class Db_activity extends fdb\Database_table {
 
     public function remove($id) {
         $id = (int)$id;
-        return $this->update(array("status" => self::STATUS_DELETED), "id = $id");
+        return $this->delete("id = $id");
     }
 
     public function cancel($id) {

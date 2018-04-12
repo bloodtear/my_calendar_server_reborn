@@ -446,7 +446,33 @@ class Activity_controller extends \my_calendar_server_reborn\controller\api\v1_b
 
        
 // * * * * *
-// 活动暂停，开启
+// 活动撤消
+// * * * * *     
+
+public function remove() {
+
+    $activity_id = get_request("id");
+    $userid = get_session('userid');
+    
+    $activity = app\Activity::oneById($activity_id);
+    if (empty($activity)) {
+        return array('op' => 'fail', "code" => 00022201, "reason" => '活动不存在');
+    }
+    if ($activity->owner() != $userid) {
+        return array('op' => 'fail', "code" => 0122201, "reason" => '用户无权删除此活动');
+    }
+    
+    $ret = app\Activity::remove($activity_id);
+    //$ret ? $record = Event::record($activity->id(), $activity->calendar_id(), "10011", $userid) : 0;
+    return $ret ?  array('op' => 'activity_remove', "data" => $ret) : array('op' => 'fail', "code" => 526742, "reason" => '活动撤消失败');
+    
+    
+    
+}
+
+
+    // * * * * *
+// 活动暂停，开启(作废)
 // * * * * *     
     
      
