@@ -71,7 +71,6 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
             $data->timeout = time() + 60 * 60;
             $data->uid =$user->uid();
             $data->calendar_session = $user->calendar_session();
-            $data->is_union = $user->is_union();
 
             return array("op" => "login", 'data' => $data);
         }
