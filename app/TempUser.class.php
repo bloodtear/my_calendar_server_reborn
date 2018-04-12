@@ -18,7 +18,6 @@ class TempUser extends User {
                 "avatar" => "",
                 "create_time" => "",
                 "last_login" => "",
-                "token" => "",
                 "status" => 0,
                 "uid" => 0,
             );
@@ -43,9 +42,11 @@ class TempUser extends User {
         return $this->mSummary["unionid"];
     }
     
+    /*
     public function is_union() {
         return !empty($this->mSummary["unionid"]) ? true : false;
     }
+    */
 
     public function calendar_session() {
         return $this->mSummary["calendar_session"];
@@ -80,10 +81,6 @@ class TempUser extends User {
         return $this->mSummary["last_login"];
     }
     
-    public function token() {
-        return $this->mSummary["token"];
-    }
-    
     public function status() {
         return $this->mSummary["status"];
     }
@@ -92,24 +89,27 @@ class TempUser extends User {
     public function setNickname($n) {
         $this->mSummary["nickname"] = $n;
     }
+    
     public function setAvatar($n) {
         $this->mSummary["avatar"] = $n;
     }
+    
     public function setSession($n) {
         $this->mSummary["calendar_session"] = $n;
     }
-    public function setToken($n) {
-        $this->mSummary["token"] = $n;
-    }
+    
     public function setSessionKey($n) {
         $this->mSummary["session_key"] = $n;
     }
+    
     public function setOpenId($n) {
         $this->mSummary["openid"] = $n;
     }
+    
     public function setUnionId($n) {
         $this->mSummary["unionid"] = $n;
     }
+    
 	  public function setUId($n) {
         $this->mSummary["uid"] = $n;
     }
@@ -118,13 +118,13 @@ class TempUser extends User {
     public function save() {
         $id = $this->id();
         if ($id == 0) {
-            $id = database\Db_tempuser::inst()->add($this->openid(), $this->uid(), $this->nickname(), $this->avatar(), $this->create_time(),  $this->last_login(), $this->token(),  $this->status(), $this->calendar_session(), $this->unionid(), $this->session_key());
+            $id = database\Db_tempuser::inst()->add($this->openid(), $this->uid(), $this->nickname(), $this->avatar(), $this->create_time(),  $this->last_login(), $this->status(), $this->calendar_session(), $this->unionid(), $this->session_key());
             if ($id !== false) {
                 $this->mSummary["id"] = $id;
-                $ret = db_custom_activity_type::inst()->default_init($id);
+                $ret = database\Db_custom_activity_type::inst()->default_init($id);
             }
         } else {
-            $id = database\Db_tempuser::inst()->modify($id, $this->openid(), $this->uid(), $this->nickname(), $this->avatar(), $this->create_time(), $this->last_login(), $this->token(),  $this->status(), $this->calendar_session(), $this->unionid(), $this->session_key());
+            $id = database\Db_tempuser::inst()->modify($id, $this->openid(), $this->uid(), $this->nickname(), $this->avatar(), $this->create_time(), $this->last_login(), $this->status(), $this->calendar_session(), $this->unionid(), $this->session_key());
         }
         return $id;
     }
@@ -136,10 +136,9 @@ class TempUser extends User {
             "id" => $this->id(),
             "name" => $this->nickname(), 
             "avatar" => $this->avatar(), 
-            "token" => $this->token(), 
             "status" => $this->status(), 
             "calendar_session" => $this->calendar_session(),
-            "is_union" => $this->is_union()
+            //"is_union" => $this->is_union()
             //"groups" => $groupInfo
         );
     }
@@ -231,6 +230,7 @@ class TempUser extends User {
     }
 
 // xy: 首页函数 待修改 20180202
+/*
     public static function get_my_index($userid, $start_index = 0) {
         $sql = "
         
@@ -327,5 +327,6 @@ class TempUser extends User {
         }
         return $list;
     }
-};
 
+*/
+}

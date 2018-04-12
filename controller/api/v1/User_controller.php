@@ -11,17 +11,22 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
         \framework\Logging::d("LOGIN", "FROM:" . $from);
         
         if ($from == 'weapp') { //具体的来源，现在只有微信小程序，也就是WXAPP
-            $calendar_session = get_request('calendar_session', "");  //calendar_session用作传递的userid
-            $avatar = get_request('avatar', "");  //calendar_session用作传递的userid
-            $nick = get_request('nick', "");  //calendar_session用作传递的userid
+        
+            $calendar_session = get_request('calendar_session', "");  //calendar_session用作传递的token
+            $avatar = get_request('avatar', "");  
+            $nick = get_request('nick', "");  
+            
             \framework\Logging::d("LOGIN", "nick:" . $nick);
             \framework\Logging::d("LOGIN", "avatar:" . $avatar);
+            
             $user = app\TempUser::oneBySession($calendar_session); //拿到具体的tempuser信息,tempuser是wx小程序的user,
             
-            
-            if (empty($user)  || empty($user->unionid())) { 
+            if (empty($user) ) {
                 
-                $code = get_request('code', '');
+                $code           = get_request('code', '');
+                $iv             = get_request("iv");
+                $encrypted_data = get_request("encrypted_data");
+                
                 $wx_auth_ret = app\Wxapi::wx_auth($code);   //获取openid,unionid
                 \framework\Logging::d("LOGIN", "wx_auth_ret:" . json_encode($wx_auth_ret));
                 
@@ -29,19 +34,30 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
                     return array('op' => 'fail', 'code' => $wx_auth_ret->errcode, 'reason' => $wx_auth_ret->errmsg);
                 }
                 
-
+                $session_key = $wx_auth_ret->session_key;  
                 
+                if (!empty($wx_auth_ret->unionid)) {       
+                    $unionid = $wx_auth_ret->unionid ;
+ 
+                }else { //unionid未获取到说明未关注公众号，则通过encrypted_data获取
+                    $unsign = app\Wxapi::unsign($session_key, $encrypted_data, $iv);
+                    \framework\Logging::d("LOGIN", "unsign:" . json_encode($unsign));
+                    
+                    if ($unsign['op'] == 'fail') {
+                        return $unsign;
+                    }
+                    
+                    $unsign = json_decode($unsign['data']);
+                    $unionid = $unsign->unionId;
+                }
+
                 $openid = $wx_auth_ret->openid;
-                $unionid = isset($wx_auth_ret->unionid) ? $wx_auth_ret->unionid : '';
-                $session_key = $wx_auth_ret->session_key;
                 $calendar_session = md5(time() . $openid . $session_key);
-                $token = md5(time());
                 
                 $user = app\TempUser::createByOpenid($openid);  //创建TempUser,修改属性，保存   
                 $user->setOpenId($openid);
                 $user->setSessionKey($session_key);
                 $user->setUnionId($unionid);
-                $user->setToken($token);
                 $user->setSession($calendar_session);
                 \framework\Logging::d("LOGIN", "calendar_session now is :" . $calendar_session);
                 
@@ -52,39 +68,68 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
             $user->save();
 
             $data = new \stdClass();
-            $data->timeout = time() + 7200;
+            $data->timeout = time() + 60 * 60;
             $data->uid =$user->uid();
-            $data->token = $user->token();
             $data->calendar_session = $user->calendar_session();
             $data->is_union = $user->is_union();
 
             return array("op" => "login", 'data' => $data);
         }
     }
-
-    public function refreshtoken() { //刷新token
-        $calendar_session = get_request('calendar_session', "");
+    
+    //刷新session
+    public function refresh_session() { 
+        self::pretreat();
+        
+        $calendar_session = get_session('calendar_session');
         $user = app\TempUser::oneBySession($calendar_session);
         
-        $token = md5(time());
-        $user->setToken($token);
+        $openid = $user->openid();
+        $session_key = $user->session_key();
+        
+        $calendar_session = md5(time() . $openid . $session_key);
+        
+        $user->setSession($calendar_session);
         $user->save();
         
         $data = new \stdClass();
-        $data->timeout = time() + 7200;
-        $data->token = $user->token();
+        $data->timeout = time() + 60 * 60;
+        $data->calendar_session = $user->calendar_session();
         
-        return array("op" => "refreshtoken", 'data' => $data);
+        self::posttreat();
+        
+        return array("op" => "refresh_session", 'data' => $data);
     }
 
-    public function bind() {
-    }
 
     public function register() {
     }
 
 
+    public static function pretreat() {
+        
+        $calendar_session = get_request("calendar_session");
+        $user = app\TempUser::oneBySession($calendar_session);
+        
+        if (empty($user)) {
+            return array('op' => 'fail', "code" => '000002', "reason" => '无此用户');
+        }
 
+        set_session('userid', $user->id());
+        set_session('username', $user->nickname());
+        set_session('calendar_session', $calendar_session);
+        
+    }
+    
+        
+    public static function posttreat() {
+
+        unset_session('userid');
+        unset_session('username');
+        
+    }
+    
+    
 
 
 }

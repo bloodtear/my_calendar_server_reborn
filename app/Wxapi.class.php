@@ -55,6 +55,22 @@ class Wxapi {
         $ret = comm_curl_request($url, json_encode($postString));
         return $ret;
     }
+    
+    public static function unsign($sessionKey, $encryptedData, $iv) {
+        
+        \framework\Logging::d("sessionKey", $sessionKey);
+        \framework\Logging::d("encryptedData", $encryptedData);
+        \framework\Logging::d("iv", $iv);
+        
+        $pc = new sign\WXBizDataCrypt(WX_APPID, $sessionKey);
+        $errCode = $pc->decryptData($encryptedData, $iv, $data );
+
+        if ($errCode == 0) {
+            return array("op" => "get_unionid", 'data' => $data);
+        } else {
+            return array('op' => 'fail', "code" => $errCode, "reason" => '解码失败');
+        }
+    }
 }
 
 
