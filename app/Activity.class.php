@@ -442,9 +442,12 @@ class Activity {
         
     }
 
-    public static function remove($id) {
+    public static function remove($act) {
+        if (is_array($act)) {
+          return database\Db_activity::inst()->remove_group($act);
+        }
+        return database\Db_activity::inst()->remove($act);
         
-        return database\Db_activity::inst()->remove($id);
         
     }
     

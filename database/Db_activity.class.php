@@ -42,6 +42,19 @@ class Db_activity extends fdb\Database_table {
         $id = (int)$id;
         return $this->delete("id = $id");
     }
+    
+    public function remove_group($arr) {
+        $where = '';
+        foreach ($arr as $k => $v) {
+            if ($k != 0) {
+                $where .= ' or ';
+            }
+            $where .= "id = '$v'";
+        }
+        //\framework\Logging::l('where', $where);
+        //return false;
+        return $this->delete("$where");
+    }
 
     public function cancel($id) {
         $id = (int)$id;

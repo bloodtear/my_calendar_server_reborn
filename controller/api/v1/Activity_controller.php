@@ -465,9 +465,17 @@ public function remove() {
     $ret = app\Activity::remove($activity_id);
     //$ret ? $record = Event::record($activity->id(), $activity->calendar_id(), "10011", $userid) : 0;
     return $ret ?  array('op' => 'activity_remove', "data" => $ret) : array('op' => 'fail', "code" => 526742, "reason" => '活动撤消失败');
+}
+
+public function remove_group() {
+
+    $del_array = get_request("del_array");
+    $del_array = json_decode($del_array);
+    $userid = get_session('userid');
     
-    
-    
+    $ret = app\Activity::remove($del_array);
+    //$ret ? $record = Event::record($activity->id(), $activity->calendar_id(), "10011", $userid) : 0;
+    return $ret ?  array('op' => 'activity_remove_group', "data" => $ret) : array('op' => 'fail', "code" => 52742, "reason" => '活动group撤消失败');
 }
 
 
