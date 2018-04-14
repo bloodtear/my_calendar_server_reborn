@@ -78,7 +78,10 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
     
     //刷新session
     public function refresh_session() { 
-        self::pretreat();
+        $pre = self::pretreat();
+		if (!empty($pre)) {
+			return $pre;
+		}
         
         $calendar_session = get_session('calendar_session');
         $user = app\TempUser::oneBySession($calendar_session);
@@ -109,7 +112,7 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
         
         $calendar_session = get_request("calendar_session");
         $user = app\TempUser::oneBySession($calendar_session);
-        
+		
         if (empty($user)) {
             return array('op' => 'fail', "code" => '000002', "reason" => '无此用户');
         }
@@ -117,6 +120,8 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
         set_session('userid', $user->id());
         set_session('username', $user->nickname());
         set_session('calendar_session', $calendar_session);
+		
+		return false;
         
     }
     
