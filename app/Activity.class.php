@@ -90,7 +90,7 @@ class Activity {
     }
     public function begintime_detail() {
         $begintime = $this->begintime();
-        return date('y-m-d h:i:s', $begintime);
+        return date('y-m-d H:i:s', $begintime);
     }
     public function begindate() {
         $begintime = $this->begintime();
@@ -98,7 +98,7 @@ class Activity {
     }
     public function endtime_detail () {
         $endtime = $this->endtime();
-        return date('y-m-d h:i:s', $endtime);
+        return date('y-m-d H:i:s', $endtime);
     }
     
     public function createtime() {
