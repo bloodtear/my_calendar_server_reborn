@@ -34,13 +34,13 @@ class Db_tempuser extends fdb\Database_table {
         return $this->get_all();
     }
 
-    public function add($openid, $uid, $nickname, $avatar, $create_time, $last_login, $status, $calendar_session, $unionid, $session_key) {
-        return $this->insert(array("session_key" => $session_key, "unionid" => $unionid, "openid" => $openid, "uid" => 0, "nickname" => $nickname, "avatar" => $avatar, "create_time" => time(), "last_login" => time(), "status" => $status, "calendar_session" => $calendar_session));
+    public function add($openid, $uid, $nickname, $avatar, $create_time, $status, $unionid, $session_key) {
+        return $this->insert(array("session_key" => $session_key, "unionid" => $unionid, "openid" => $openid, "uid" => 0, "nickname" => $nickname, "avatar" => $avatar, "create_time" => time(), "status" => $status));
     }
 
-    public function modify($id, $openid, $uid, $nickname, $avatar, $create_time, $last_login, $status, $calendar_session, $unionid, $session_key) {
+    public function modify($id, $openid, $uid, $nickname, $avatar, $create_time, $status, $unionid, $session_key) {
         $id = (int)$id;
-        return $this->update(array("session_key" => $session_key, "unionid" => $unionid, "openid" => $openid, "uid" => $uid, "nickname" => $nickname, "avatar" => $avatar, "create_time" => $create_time, "last_login" => time(),  "status" => $status, "calendar_session" => $calendar_session), "id = $id");
+        return $this->update(array("session_key" => $session_key, "unionid" => $unionid, "openid" => $openid, "uid" => $uid, "nickname" => $nickname, "avatar" => $avatar, "create_time" => $create_time, "status" => $status), "id = $id");
     }
 
     public function remove($id) {
