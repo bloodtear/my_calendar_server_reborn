@@ -363,7 +363,9 @@ class Activity_controller extends \my_calendar_server_reborn\controller\api\v1_b
                 array_push($activity_list, $activity_id);
                 $ret = $ret && $add_ret;
                 \framework\Logging::d("ret", $ret);
-                $first_id = ($first_id == 0 ? $activity_id : 0);
+                if ($first_id == 0) {
+                    $first_id = $activity_id;
+                }
                 \framework\Logging::d("first_id", $first_id);
             }
 
