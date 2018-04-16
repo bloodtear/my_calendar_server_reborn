@@ -9,15 +9,18 @@ class Activity_type_controller extends \my_calendar_server_reborn\controller\api
     private $mUser = null;
 
     public function pretreat() {
-        
+  
         $calendar_session = get_request("calendar_session");
-        $user = app\TempUser::oneBySession($calendar_session);
-        if (empty($user)) {
+        $session = app\Session::get_by_session($calendar_session);
+		
+        if (empty($session)) {
             return array('op' => 'fail', "code" => '000002', "reason" => '无此用户');
         }
 
-        set_session('userid', $user->id());
-        set_session('username', $user->nickname());
+        set_session('userid', $session->tempid());
+        set_session('username', "uid:" . $session->tempid());
+		
+		return false;
         
     }
 
@@ -33,6 +36,7 @@ class Activity_type_controller extends \my_calendar_server_reborn\controller\api
         }else {
             $ret = app\Activity_type::add($userid, $title, $pub);
         }
+        \framework\Logging::l("custom_modify_type", $ret);
         
         return $ret ? $this->op("custom_type_modify", $ret) : array('op' => 'fail', "code" => '01012', "reason" => '修改自定义类型失败');
     }

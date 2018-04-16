@@ -16,13 +16,18 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
             $avatar = get_request('avatar', "");  
             $nick = get_request('nick', "");  
             
-            \framework\Logging::d("LOGIN", "nick:" . $nick);
-            \framework\Logging::d("LOGIN", "avatar:" . $avatar);
+            $session = app\Session::get_by_session($calendar_session);
             
-            $user = app\TempUser::oneBySession($calendar_session); //拿到具体的tempuser信息,tempuser是wx小程序的user,
-            
-            if (empty($user) ) {
+
+            if (!empty($session) ) {
                 
+                $user = app\TempUser::get($session->tempid());
+                
+            }else {
+
+                $session = new app\Session();
+                
+                // 没有session说明是新用户，没有对应的user，需要先补齐user
                 $code           = get_request('code', '');
                 $iv             = get_request("iv");
                 $encrypted_data = get_request("encrypted_data");
@@ -36,7 +41,7 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
                 
                 $session_key = $wx_auth_ret->session_key;  
                 
-                if (!empty($wx_auth_ret->unionid)) {       
+                if (!empty($wx_auth_ret->unionid)) {
                     $unionid = $wx_auth_ret->unionid ;
  
                 }else { //unionid未获取到说明未关注公众号，则通过encrypted_data获取
@@ -53,26 +58,33 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
 
                 $openid = $wx_auth_ret->openid;
                 $calendar_session = md5(time() . $openid . $session_key);
-                
-                $user = app\TempUser::createByOpenid($openid);  //创建TempUser,修改属性，保存   
+
+                $user = app\TempUser::createByOpenid($openid); 
                 $user->setOpenId($openid);
                 $user->setSessionKey($session_key);
                 $user->setUnionId($unionid);
-                $user->setSession($calendar_session);
-                \framework\Logging::d("LOGIN", "calendar_session now is :" . $calendar_session);
-                
+
             }
             
+            // 刷新用户nickname, avatar
             $user->setAvatar($avatar);
             $user->setNickname($nick);
-            $user->save();
+            $ret = $user->save();
+            if (empty($ret)) {
+                return array('op' => 'fail', 'code' => 23242, 'reason' => "用户信息保存失败");
+            }
+            
+            // 刷新用户session信息
+            $timeout = time() + 60 * 60;
+            
+            $session->set_calendar_session($calendar_session);
+            $session->set_tempid($user->id());
+            $session->set_last_login(time());
+            $session->set_expired($timeout);
+            
+            $ret = $session->save();
 
-            $data = new \stdClass();
-            $data->timeout = time() + 60 * 60;
-            $data->uid =$user->uid();
-            $data->calendar_session = $user->calendar_session();
-
-            return array("op" => "login", 'data' => $data);
+            return $ret ? array("op" => "login", 'data' => ["timeout" => $timeout, "uid" => $user->uid(), "calendar_session" => $session->calendar_session()]) : array('op' => 'fail', 'code' => 232242, 'reason' => "登录失败");;
         }
     }
     
@@ -84,23 +96,32 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
 		}
         
         $calendar_session = get_session('calendar_session');
-        $user = app\TempUser::oneBySession($calendar_session);
+        
+        $session = app\Session::get_by_session($calendar_session);
+        $user = app\TempUser::get($session->tempid());
         
         $openid = $user->openid();
         $session_key = $user->session_key();
         
         $calendar_session = md5(time() . $openid . $session_key);
         
-        $user->setSession($calendar_session);
-        $user->save();
         
-        $data = new \stdClass();
-        $data->timeout = time() + 60 * 60;
-        $data->calendar_session = $user->calendar_session();
+        
+        
+        
+
+        $timeout = time() + 60 * 60;
+            
+        $session->set_calendar_session($calendar_session);
+        $session->set_last_login(time());
+        $session->set_expired($timeout);
+
+        $ret = $session->save();
         
         self::posttreat();
         
-        return array("op" => "refresh_session", 'data' => $data);
+        return $ret ? array("op" => "refresh_session", 'data' => ["timeout" => $timeout, "calendar_session" => $session->calendar_session()]) : array('op' => 'fail', 'code' => 232242, 'reason' => "登录失败");;
+
     }
 
 
@@ -111,14 +132,14 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
     public static function pretreat() {
         
         $calendar_session = get_request("calendar_session");
-        $user = app\TempUser::oneBySession($calendar_session);
+        $session = app\Session::get_by_session($calendar_session);
 		
-        if (empty($user)) {
+        if (empty($session)) {
             return array('op' => 'fail', "code" => '000002', "reason" => '无此用户');
         }
 
-        set_session('userid', $user->id());
-        set_session('username', $user->nickname());
+        set_session('userid', $session->tempid());
+        set_session('username', "uid:" . $session->tempid());
         set_session('calendar_session', $calendar_session);
 		
 		return false;
@@ -130,6 +151,7 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
 
         unset_session('userid');
         unset_session('username');
+        unset_session('calendar_session');
         
     }
     

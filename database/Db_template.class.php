@@ -1,7 +1,8 @@
 <?php
 namespace my_calendar_server_reborn\database;
+use framework\Database as fdb;
 
-class db_template extends database_table {
+class Db_template extends fdb\database_table {
     const STATUS_NORMAL = 0;
     const STATUS_DELETED = 1;
 

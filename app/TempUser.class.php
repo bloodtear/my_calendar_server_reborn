@@ -195,6 +195,11 @@ class TempUser extends User {
         $ret = database\Db_tempuser::inst()->get_by_session($calendar_session);
         return $ret ? new TempUser($ret) : null;
     }
+    
+    public static function get($id) { 
+        $ret = database\Db_tempuser::inst()->get($id);
+        return $ret ? new TempUser($ret) : null;
+    }
 
     public static function createByOpenid($openid) {
         $ret = database\Db_tempuser::inst()->get_by_openid($openid);
