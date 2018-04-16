@@ -2,7 +2,7 @@
 namespace my_calendar_server_reborn\database;
 use framework\Database as fdb;
 
-class Db_session extends fdb\database_table {
+class Db_session extends fdb\Database_table {
     const STATUS_NORMAL = 0;
     const STATUS_DELETED = 1;
 
