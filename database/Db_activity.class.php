@@ -109,7 +109,8 @@ class Db_activity extends fdb\Database_table {
             where 
                 a.owner = $userid
             GROUP BY 
-                a.id";
+                a.id
+            ";
 
         $my_joined = "
             select 
@@ -223,7 +224,9 @@ class Db_activity extends fdb\Database_table {
                 union
             $my_subscribed
                 union
-            $my_subscribed_type;";
+            $my_subscribed_type 
+            order by 
+                endtime desc;";
         return Db_base::inst()->do_query($sql);
     }
     
@@ -258,7 +261,9 @@ class Db_activity extends fdb\Database_table {
         where 
             a.type = $choosed_type
         group by 
-            a.id;
+            a.id
+        order by 
+            a.endtime desc;
         ";
         return Db_base::inst()->do_query($sql);
     }
@@ -298,7 +303,9 @@ class Db_activity extends fdb\Database_table {
         where 
             f.tempid = $userid
         group by 
-            f.activity;
+            f.activity
+        order by 
+            d.endtime desc;
         ";
         return Db_base::inst()->do_query($sql);
     }    
@@ -338,7 +345,9 @@ class Db_activity extends fdb\Database_table {
             where 
                 a.tempid = $userid
             group by 
-                a.activity;
+                a.activity
+            order by 
+                b.endtime desc;
             ";
         return Db_base::inst()->do_query($sql);
     }
@@ -374,7 +383,9 @@ class Db_activity extends fdb\Database_table {
         where 
             a.type = $choosed_type
         GROUP BY
-            a.id";
+            a.id
+        order by 
+            a.endtime desc";
         return Db_base::inst()->do_query($sql);
     }
 
