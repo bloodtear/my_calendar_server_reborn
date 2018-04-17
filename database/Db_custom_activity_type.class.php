@@ -106,13 +106,19 @@ class Db_custom_activity_type extends fdb\Database_table {
     public static function view_by_user($typeid, $userid){
         $sql = "
             select 
-                a.*, b.id subscribed , $userid as view_userid
+                a.*, b.id subscribed , 
+                $userid as view_userid,
+                usr.avatar avatar_name
             from 
                 my_calendar_custom_activity_types a 
             left join 
                 my_calendar_subscribe_type b 
             on 
                 a.id = b.typeid and b.tempid = $userid 
+            left join
+                my_calendar_tempuser usr
+            on
+                a.tempid = usr.id
             where 
                 a.id = $typeid ";
         return Db_base::inst()->do_query($sql);
