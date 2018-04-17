@@ -454,6 +454,45 @@ class Db_activity extends fdb\Database_table {
                 b.pub != 0
             limit 
                 $start, 30;";
+                
+                
+        $sql = "
+            select 
+                a.*, 
+                b.title type_title, 
+                b.pub pub,
+                p.image avatar_name,
+                count(distinct sub.id) now_sub,
+                count(distinct s.id) now_join
+            from 
+                my_calendar_activity a 
+            left JOIN 
+                my_calendar_custom_activity_types b 
+            on 
+                a.type = b.id 
+            left join 
+                my_calendar_preview_images p
+            on 
+                p.id = a.avatar
+            left join 
+                my_calendar_sign s
+            on 
+                a.id = s.activity
+            left join 
+                my_calendar_subscribe sub
+            on 
+                a.id = sub.activity
+            where
+                    match(a.scws_title) 
+                    AGAINST('$input') 
+                and 
+                    b.pub != 0
+            GROUP BY
+                a.id
+            order by 
+                a.endtime desc
+            limit 
+                $start, 30";
         return Db_base::inst()->do_query($sql);
     }
     

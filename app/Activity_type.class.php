@@ -33,6 +33,10 @@ class Activity_type {
     public function num() {
         return isset($this->mSummary["num"]) ? $this->mSummary["num"] : 0;
     }
+    
+    public function owner_avatar() {
+        return isset($this->mSummary["avatar_name"]) ? $this->mSummary["avatar_name"] : '';
+    }
 	
     public function editable() {
         if (isset($this->mSummary["editable"])) {
@@ -76,6 +80,7 @@ class Activity_type {
             "tempid" => $this->tempid(), 
             "editable" => $this->editable(), 
             "subscribed" => $this->subscribed(), 
+            "owner_avatar" => $this->owner_avatar(), 
             "num" => $this->num(), 
         );
     }
