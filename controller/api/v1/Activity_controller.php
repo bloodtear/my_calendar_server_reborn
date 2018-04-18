@@ -478,6 +478,10 @@ public function remove_group() {
     $del_array = json_decode($del_array);
     $userid = get_session('userid');
     
+    if (empty($del_array)){
+        return array('op' => 'fail', "code" => 527412, "reason" => '活动group撤消失败,删除的不能为空');
+    }
+    
     $ret = app\Activity::remove($del_array);
     //$ret ? $record = Event::record($activity->id(), $activity->calendar_id(), "10011", $userid) : 0;
     return $ret ?  array('op' => 'activity_remove_group', "data" => $ret) : array('op' => 'fail', "code" => 52742, "reason" => '活动group撤消失败');
