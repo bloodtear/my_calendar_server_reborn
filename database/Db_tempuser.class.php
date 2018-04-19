@@ -29,6 +29,10 @@ class Db_tempuser extends fdb\Database_table {
     public function get_by_openid($openid) {
         return $this->get_one("openid = '$openid'");
     }
+    
+    public function get_by_uid($uid) {
+        return $this->get_one("uid = '$uid'");
+    }
 
     public function all() {
         return $this->get_all();

@@ -21,17 +21,20 @@ class Db_session extends fdb\Database_table {
         return $this->get_one("calendar_session = '$calendar_session'");
     }
 
-    public function add($calendar_session, $tempid, $expired, $last_login) {
-        return $this->insert(array("calendar_session" => $calendar_session,"tempid" => $tempid, "expired" => $expired, "last_login" => $last_login));
+    public function get_exist_by_session($tempid) {
+        return $this->get_one("tempid = '$tempid' and type = 1");
     }
 
-    public function modify($id, $calendar_session, $tempid, $expired, $last_login) {
-        return $this->update(array("calendar_session" => $calendar_session,"tempid" => $tempid, "expired" => $expired, "last_login" => $last_login), "id = $id");
+    public function add($calendar_session, $tempid, $expired, $last_login, $type) {
+        return $this->insert(array("calendar_session" => $calendar_session,"tempid" => $tempid, "expired" => $expired, "last_login" => $last_login, "type" => $type));
     }
 
-    public function remove($id) {
-        $id = (int)$id;
-        return $this->update(array("status" => self::STATUS_DELETED), "id = $id");
+    public function modify($id, $calendar_session, $tempid, $expired, $last_login, $type) {
+        return $this->update(array("calendar_session" => $calendar_session,"tempid" => $tempid, "expired" => $expired, "last_login" => $last_login, "type" => $type), "id = $id");
+    }
+
+    public function remove($calendar_session) {
+        return $this->delete("calendar_session = '$calendar_session'");
     }
 
 

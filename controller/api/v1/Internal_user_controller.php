@@ -18,15 +18,9 @@ class Internal_user_controller extends \my_calendar_server_reborn\controller\api
 
         set_session('userid', $session->tempid());
         set_session('username', "uid:" . $session->tempid());
+        set_session('calendar_session', $calendar_session);
 		
 		return false;
-        
-    }
-    
-    public function posttreat() {
-
-        unset_session('userid');
-        unset_session('username');
         
     }
 
@@ -58,7 +52,7 @@ class Internal_user_controller extends \my_calendar_server_reborn\controller\api
         
         $ret = $user->save();
         
-        return $ret ? $this->op("request_code", $ret) : array('op' => 'fail', "code" => '015012', "reason" => '保存临时用户失败');
+        return $ret ? $this->op("request_code", $ret) : array('op' => 'fail', "code" => '015012', "reason" => '保存认证用户失败');
 
     }
     
@@ -66,8 +60,15 @@ class Internal_user_controller extends \my_calendar_server_reborn\controller\api
         $phone_number = get_request("phone_number");
         $verify_code = get_request("verify_code");
         $tempuserid = get_session('userid');
+        
        
-        $user = app\User::get_by_phone($phone_number);
+        $user = app\User::get_by_phone($phone_number);  //手机号user信息，可能为空
+        $userid = $user->id();  
+        
+        $bind_tempuser = app\TempUser::get_by_uid($userid);     //绑定此手机号的tempuser，可能为空
+        
+        $tempuser = app\TempUser::get($tempuserid); //当前小程序登录的tempuser
+        
         
         if (empty($user)) {
             return array('op' => 'fail', "code" => '0034102', "reason" => '此手机尚未请求验证码');
@@ -79,17 +80,59 @@ class Internal_user_controller extends \my_calendar_server_reborn\controller\api
             return array('op' => 'fail', "code" => '0134102', "reason" => '验证码错误或者已过期');
         }
         
-        $tempuser = app\TempUser::verify_or_create($tempuserid, $user->id());
+        // case 1 如果user未绑定，tempuser已绑定，则报错                           return false;
+        // case 2 如果user未绑定，tempuser未绑定，则二者相互绑定，登录user         return user;
+        // case 3 如果user已绑定，登录user                                         return user;
+        
+        if (empty($bind_tempuser) && !empty($tempuser->uid())) {
+            return array('op' => 'fail', "code" => '024102', "reason" => '此手机号尚未绑定，且当前登录小程序已绑定其他手机号');
+        }
+        
+        if (empty($bind_tempuser) && empty($tempuser->uid())) {
+            $tempuser->setUId($userid);
+            $save = $tempuser->save();
+            if (empty($save)) {
+                return array('op' => 'fail', "code" => '01302', "reason" => '保存用户失败');
+            }
+            $bind_tempuser = $user;
+        }
+        
+        $session = new app\Session();
+        
+        $calendar_session = md5(time() . $tempuser->openid() . $tempuser->session_key());
+        $timeout = time() + 60 * 60;
+        
+        $session->set_calendar_session($calendar_session);
+        $session->set_tempid($tempuser->id());
+        $session->set_last_login(time());
+        $session->set_expired($timeout);
+        $session->set_type(2);
+        
+        $ret = $session->save();
 
-        return $tempuser ? $this->op("verify", $tempuser->packInfo()) : array('op' => 'fail', "code" => '0125012', "reason" => '关联微信认证失败');
-
+        return $ret ? $this->op("verify", ['session' => $session->packInfo(), "tempuser" => $bind_tempuser->packInfo()]) : array('op' => 'fail', "code" => '0125012', "reason" => '关联微信认证失败');
+        
     }
 
+    public function exit_verify() {
+        $tempuserid = get_session('userid');
+        $calendar_session = get_session('calendar_session');
+        
+        $ret = app\Session::remove($calendar_session);
+        return $ret ? $this->op("exit_verify", $ret) : array('op' => 'fail', "code" => '0152012', "reason" => '退出会话失败');
+    
+    }
+
+    public function posttreat() {
+
+        unset_session('userid');
+        unset_session('username');
+        unset_session('calendar_session');
+        
+    }
     
     
-    
-    
-    
+    /*
     
 public function send(){
  
@@ -302,9 +345,8 @@ public function send(){
 		return array( "op" => "getInfo","data" => $data);
    }
 	
-	/*
-	再次登陆，免去短信验证，只能登陆与本地微信绑定帐号
-	*/
+	
+	
     public function login() {
 		
 	
@@ -345,5 +387,5 @@ public function send(){
 		}
 		return array( "op" => "getInfo","data" => $data);
    }
-	
+*/
 }

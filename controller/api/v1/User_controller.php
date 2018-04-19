@@ -69,10 +69,14 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
             // 刷新用户nickname, avatar
             $user->setAvatar($avatar);
             $user->setNickname($nick);
-            $ret = $user->save();
-            if (empty($ret)) {
-                return array('op' => 'fail', 'code' => 23242, 'reason' => "用户信息保存失败");
+            $user->save();
+            // 此时一定有了userid, 这时候拿取type = 1,tempid = userid的session
+            $exist_session = app\Session::get_exist_by_session($user->id());
+            if (!empty($exist_session)) {
+                return array("op" => "login", 'data' => ["timeout" => $exist_session->expired(), "uid" => $user->uid(), "calendar_session" => $exist_session->calendar_session()]);
             }
+            
+            
             
             // 刷新用户session信息
             $timeout = time() + 60 * 60;
@@ -81,10 +85,11 @@ class User_controller extends \my_calendar_server_reborn\controller\api\v1_base 
             $session->set_tempid($user->id());
             $session->set_last_login(time());
             $session->set_expired($timeout);
+            $session->set_type(1);
             
             $ret = $session->save();
 
-            return $ret ? array("op" => "login", 'data' => ["timeout" => $timeout, "uid" => $user->uid(), "calendar_session" => $session->calendar_session()]) : array('op' => 'fail', 'code' => 232242, 'reason' => "登录失败");;
+            return $ret ? array("op" => "login", 'data' => ["timeout" => $timeout, "uid" => $user->uid(), "calendar_session" => $session->calendar_session()]) : array('op' => 'fail', 'code' => 232242, 'reason' => "登录失败");
         }
     }
     

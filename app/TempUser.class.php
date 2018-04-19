@@ -90,9 +90,10 @@ class TempUser extends User {
         $this->mSummary["unionid"] = $n;
     }
     
-	  public function setUId($n) {
+	public function setUId($n) {
         $this->mSummary["uid"] = $n;
     }
+    
 
     //存储函数
     public function save() {
@@ -116,6 +117,7 @@ class TempUser extends User {
             "id" => $this->id(),
             "name" => $this->nickname(), 
             "avatar" => $this->avatar(), 
+            "uid" => $this->uid(), 
             "status" => $this->status()
         );
     }
@@ -125,6 +127,7 @@ class TempUser extends User {
         return new TempUser($user);
     }
 
+    /*
     public static function all($include_deleted = false) {
         $users = database\Db_tempuser::inst()->all();
         $arr = array();
@@ -168,6 +171,8 @@ class TempUser extends User {
         return null;
     }
     
+    */
+    
     public static function oneBySession($calendar_session) { 
         $ret = database\Db_tempuser::inst()->get_by_session($calendar_session);
         return $ret ? new TempUser($ret) : null;
@@ -186,6 +191,15 @@ class TempUser extends User {
         return new TempUser;
     }
     
+    public static function get_by_uid($uid) {
+        $ret = database\Db_tempuser::inst()->get_by_uid($uid);
+        if ($ret) {
+            return new TempUser($ret);
+        }
+        return null;
+    }
+    
+    /*
     public static function verify_or_create($tempuserid, $userid) {
         $data = database\Db_tempuser::inst()->get_verify_user($userid);
         if ($data) {
@@ -200,15 +214,17 @@ class TempUser extends User {
             return new TempUser($data);
         }
     }
+    */
     
 
     public static function remove($uid) {
         return database\Db_tempuser::inst()->remove($uid);
     }
     
+    /*
     public function my_index($start_index) {
         $userid = $this->id();
         return self::get_my_index($userid, $start_index);
     }
-
+    */
 }
