@@ -103,7 +103,7 @@ class Internal_user_controller extends \my_calendar_server_reborn\controller\api
         $timeout = time() + 60 * 60;
         
         $session->set_calendar_session($calendar_session);
-        $session->set_tempid($tempuser->id());
+        $session->set_tempid($bind_tempuser->id());
         $session->set_last_login(time());
         $session->set_expired($timeout);
         $session->set_type(2);
