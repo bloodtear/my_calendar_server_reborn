@@ -34,11 +34,10 @@ class Customer_service {
         return $this->mSummary["MsgType"];
     }
     
-    
     //TEXT
     //文本消息内容
     public function Content() {
-        return $this->mSummary["Content"];
+        return $this->mSummary["Content"] ?? null;
     }
     
     //消息id，64位整型
@@ -49,43 +48,44 @@ class Customer_service {
     // pic
     //图片链接（由系统生成）
     public function PicUrl() {
-        return $this->mSummary["PicUrl"];
+        return $this->mSummary["PicUrl"] ?? null;
     }
     
     //图片消息媒体id，可以调用获取临时素材接口拉取数据。
     public function MediaId() {
-        return $this->mSummary["MediaId"];
+        return $this->mSummary["MediaId"] ?? null;
     }
     
     // MINIAPP
     //小程序appid
     public function AppId() {
-        return $this->mSummary["AppId"];
+        return $this->mSummary["AppId"] ?? null;
     }
 
     //小程序页面路径
     public function PagePath() {
-        return $this->mSummary["PagePath"];
+        return $this->mSummary["PagePath"] ?? null;
     }
 
     //封面图片的临时cdn链接
     public function ThumbUrl() {
-        return $this->mSummary["ThumbUrl"];
+        return $this->mSummary["ThumbUrl"] ?? null;
     }
 
     //封面图片的临时素材id
     public function ThumbMediaId() {
-        return $this->mSummary["ThumbMediaId"];
+        return $this->mSummary["ThumbMediaId"] ?? null;
     }
 
     //ENTER
     //封面图片的临时素材id
     public function Event() {
-        return $this->mSummary["Event"];
-
+        return $this->mSummary["Event"] ?? null;
+    }
+    
     //开发者在客服会话按钮设置的session-from属性
     public function SessionFrom() {
-        return $this->mSummary["SessionFrom"];
+        return $this->mSummary["SessionFrom"] ?? null;
     }
 
 
@@ -105,8 +105,19 @@ class Customer_service {
 
     public function packInfo() {
        return array(
-            "id" => $this->id(),
-            "name" => $this->name(), 
+            "SessionFrom" => $this->SessionFrom(),
+            "Event" => $this->Event(),
+            "ThumbMediaId" => $this->ThumbMediaId(),
+            "ThumbUrl" => $this->ThumbUrl(),
+            "PagePath" => $this->PagePath(),
+            "AppId" => $this->AppId(),
+            "MediaId" => $this->MediaId(),
+            "PicUrl" => $this->PicUrl(),
+            "MsgId" => $this->MsgId(),
+            "MsgType" => $this->MsgType(),
+            "CreateTime" => $this->CreateTime(),
+            "FromUserName" => $this->FromUserName(),
+            "ToUserName" => $this->ToUserName()
         );
     }
 
