@@ -71,6 +71,26 @@ class Wxapi {
             return array('op' => 'fail', "code" => $errCode, "reason" => '解码失败');
         }
     }
+    
+    public static function send_welcome_msg($openid) {
+        Wxapi::check_access_token();
+        $wx_acess_token = $_SESSION['WX_ACCESS_TOKEN'];
+        \framework\Logging::d("wx_acess_token", $wx_acess_token);
+
+        $url = 'https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' . $wx_acess_token;
+        $postString = array(
+            "touser" => $openid,
+            "msgtype" => "link",
+            "link" => array(
+                "title" => "Happy Day",
+                "description" => "Is Really A Happy Day",
+                "url" => "URL",
+                "thumb_url" => "THUMB_URL"
+            );
+        );
+        $ret = comm_curl_request($url, json_encode($postString));
+        return $ret;
+    }
 }
 
 

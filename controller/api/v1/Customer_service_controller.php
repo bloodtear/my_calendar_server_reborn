@@ -15,21 +15,28 @@ class Customer_service_controller extends \my_calendar_server_reborn\controller\
 
     public function receive_msg() {
         
-        $signature = $_GET["signature"];
-        $timestamp = $_GET["timestamp"];
-        $nonce = $_GET["nonce"];
-
-        $token = "2ghlmcl1hblsqt";
-        $tmpArr = array($token, $timestamp, $nonce);
-        sort($tmpArr, SORT_STRING);
-        $tmpStr = implode( $tmpArr );
-        $tmpStr = sha1( $tmpStr );
-
-        if( $tmpStr == $signature ){
-            return true;
-        }else{
-            return false;
+        $check_sign = app\Customer_service::check_sign();
+        if (empty($check_sign)) {
+            return array('op' => 'fail', "code" => '100002', "reason" => 'not from wx_server');
         }
+        
+        $input = file_get_contents('php://input');
+        
+        $customer_msg = new app\Customer_service($input);
+        
+        switch ($customer_msg->MsgType()) {
+            case 'event': 
+                $ret = $customer_msg->send_welcome_msg();
+            break;
+        }
+        
+        \framework\Logging::l("send_msg", json_encode($ret));
+        
+        return $ret;
+        
+        
+        
+
     }
 
     public function posttreat() {
