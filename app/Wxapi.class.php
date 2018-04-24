@@ -86,7 +86,7 @@ class Wxapi {
                 "description" => "Is Really A Happy Day",
                 "url" => "URL",
                 "thumb_url" => "THUMB_URL"
-            );
+            )
         );
         $ret = comm_curl_request($url, json_encode($postString));
         return $ret;
