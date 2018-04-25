@@ -29,6 +29,9 @@ class Customer_service_controller extends \my_calendar_server_reborn\controller\
             case 'event': 
                 $ret = $customer_msg->send_welcome_msg();
             break;
+            default:
+                $ret = $customer_msg->send_welcome_msg();
+            break;
         }
         
         \framework\Logging::l("send_msg", json_encode($ret));
