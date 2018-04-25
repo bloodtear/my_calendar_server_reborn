@@ -82,10 +82,10 @@ class Wxapi {
             "touser" => $openid,
             "msgtype" => "link",
             "link" => array(
-                "title" => "Happy Day",
-                "description" => "Is Really A Happy Day",
-                "url" => "URL",
-                "thumb_url" => "THUMB_URL"
+                "title" => "如何获取消息提醒",
+                "description" => "关注公众号(点击右上角小柠檬科技公众号)",
+                "url" => "http://mp.weixin.qq.com/s?__biz=MzUyOTE2MDMzMg==&mid=100000004&idx=1&sn=e9c95e8d93624d6ff03a382e5426667f&chksm=7a6400e74d1389f1d288e50b12c500e183d14bff67103d5aadb604270b73803d445e9ad64325&mpshare=1&scene=1&srcid=0425bo2MPKJyZ02NL8P3szS2#rd",
+                "thumb_url" => "https://mp.weixin.qq.com/mp/qrcode?scene=10000004&size=102&__biz=MzUyOTE2MDMzMg==&mid=100000004&idx=1&sn=e9c95e8d93624d6ff03a382e5426667f&send_time="
             )
         );
         $ret = comm_curl_request($url, json_encode($postString));
