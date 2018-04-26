@@ -139,6 +139,52 @@ class Customer_service {
     public function send_welcome_msg() {
         return Wxapi::send_welcome_msg($this->FromUserName());
     }
+    
+    public static function autoReply($openid) {
+        $json = self::makeTextJson(
+            $openid, 
+            "[自动回复]请关注 [ 小柠檬科技 ] 公众号，谢谢！");
+        return Wxapi::sendMsg($json);
+    }
+    
+    public static function welcomeMsg($openid) {
+        $json = self::makeLinkJson(
+            $openid, 
+            "如何获取消息提醒", 
+            "关注公众号(点击右上角小柠檬科技公众号)", 
+            "http://mp.weixin.qq.com/s?__biz=MzUyOTE2MDMzMg==&mid=100000004&idx=1&sn=e9c95e8d93624d6ff03a382e5426667f&chksm=7a6400e74d1389f1d288e50b12c500e183d14bff67103d5aadb604270b73803d445e9ad64325&mpshare=1&scene=1&srcid=0425bo2MPKJyZ02NL8P3szS2#rd", 
+            "https://mp.weixin.qq.com/mp/qrcode?scene=10000004&size=102&__biz=MzUyOTE2MDMzMg==&mid=100000004&idx=1&sn=e9c95e8d93624d6ff03a382e5426667f&send_time=");
+        return Wxapi::sendMsg($json);
+    }
+
+
+    public static function makeTextJson($openid, $content) {
+        $arr = array(
+            "touser"  => $openid,
+            "msgtype" => "text",
+            "text" => 
+            array(
+                "content" => $content
+            )
+        );
+        return json_decode(json_encode($arr));
+    }
+
+    
+    public static function makeLinkJson($openid, $title, $description, $url, $thumb_url) {
+        $arr = array(
+            "touser"  => $openid,
+            "msgtype" => "link",
+            "link" => 
+            array(
+                "title" => $title,
+                "description" => $description,
+                "url" => $url,
+                "thumb_url" => $thumb_url
+            )
+        );
+        return json_decode(json_encode($arr));
+    }
 
     
     

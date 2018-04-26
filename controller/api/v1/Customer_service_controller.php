@@ -24,13 +24,14 @@ class Customer_service_controller extends \my_calendar_server_reborn\controller\
         $input = file_get_contents('php://input');
         
         $customer_msg = new app\Customer_service(json_decode($input,true));
+        $openid = $customer_msg->FromUserName();
         
         switch ($customer_msg->MsgType()) {
             case 'event': 
-                $ret = $customer_msg->send_welcome_msg();
+                $ret = app\Customer_service::welcomeMsg($openid);
             break;
             default:
-                $ret = $customer_msg->send_welcome_msg();
+                $ret = app\Customer_service::autoReply($openid);
             break;
         }
         

@@ -4,6 +4,40 @@ use my_calendar_server_reborn\database;
 
 class Wxapi {
     
+    public static function check_token() {
+        $token_set = Setting::get_by_name("token");
+
+        if (empty($token_set) || $token_set->expired() < time()) {
+            $access_token_ret = Wxapi::get_access_token();
+            \framework\Logging::l("access_token_ret", json_encode($access_token_ret));
+            if (isset($access_token_ret->errcode)) {
+                return false;
+            }
+            
+            $new_token = $access_token_ret->access_token;
+            $expired = $access_token_ret->expires_in + time();
+            
+            if (empty($token_set)) {
+                $token_set = new Setting();
+            }
+            
+            $token_set->setName('token');
+            $token_set->setValue($new_token);
+            $token_set->setExpired($expired);
+            $token_set->setStatus(0);
+            $save = $token_set->save();
+            
+            if (empty($save)) {
+                return false;
+            }
+            
+        }
+        
+        $token = $token_set->value();
+        
+        return $token;
+    }
+    
     public static function wx_auth($code){
         $url = 'https://api.weixin.qq.com/sns/jscode2session';
         $postString = array(
@@ -15,6 +49,7 @@ class Wxapi {
         return json_decode($wx_auth_ret);
     }
 
+    
     public static function get_access_token() {
         $url = 'https://api.weixin.qq.com/cgi-bin/token';
         $postString = array(
@@ -22,27 +57,12 @@ class Wxapi {
             "appid" => WX_APPID,
             "secret" => WX_SECRET,);
         $wx_auth_ret = json_decode(comm_curl_request($url, $postString));
-        if (empty($wx_auth_ret->error)) {
-            $_SESSION["WX_ACCESS_TOKEN"] = $wx_auth_ret->access_token;
-            $_SESSION["WX_ACCESS_TOKEN_EXPIRES_IN"] = $wx_auth_ret->expires_in + time();
-            return true;
-        }else {
-            return false;
-        }
+        return $wx_auth_ret;
     }
-    
-    public static function check_access_token() {
-        $wx_acess_token = isset($_SESSION['WX_ACCESS_TOKEN']) ? $_SESSION['WX_ACCESS_TOKEN'] : null;
-        $wx_acess_token_expires_in = isset($_SESSION['WX_ACCESS_TOKEN_EXPIRES_IN']) ? $_SESSION['WX_ACCESS_TOKEN_EXPIRES_IN'] : null;
-        if (empty($wx_acess_token) || empty($wx_acess_token_expires_in) || time() > $wx_acess_token_expires_in) {
-            Wxapi::get_access_token();
-        }
-    }
-    
             
     public static function get_wx_acode($page, $scene){
-        Wxapi::check_access_token();
-        $wx_acess_token = $_SESSION['WX_ACCESS_TOKEN'];
+        $wx_acess_token = Wxapi::check_token();
+
         \framework\Logging::d("wx_acess_token", $wx_acess_token);
         \framework\Logging::d("page", $page);
         \framework\Logging::d("scene", $scene);
@@ -56,6 +76,7 @@ class Wxapi {
         return $ret;
     }
     
+    //get unionid 解码相关
     public static function unsign($sessionKey, $encryptedData, $iv) {
         
         \framework\Logging::d("sessionKey", $sessionKey);
@@ -71,31 +92,15 @@ class Wxapi {
             return array('op' => 'fail', "code" => $errCode, "reason" => '解码失败');
         }
     }
-    
-    public static function send_welcome_msg($openid) {
-        Wxapi::check_access_token();
-        $wx_acess_token = $_SESSION['WX_ACCESS_TOKEN'];
-        \framework\Logging::d("wx_acess_token", $wx_acess_token);
-
-        $url = 'https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' . $wx_acess_token;
-        $postString = array(
-            "touser" => $openid,
-            "msgtype" => "link",
-            "link" => array(
-                "title" => ("如何获取消息提醒"),
-                "description" => ("关注公众号(点击右上角小柠檬科技公众号)"),
-                "url" => "http://mp.weixin.qq.com/s?__biz=MzUyOTE2MDMzMg==&mid=100000004&idx=1&sn=e9c95e8d93624d6ff03a382e5426667f&chksm=7a6400e74d1389f1d288e50b12c500e183d14bff67103d5aadb604270b73803d445e9ad64325&mpshare=1&scene=1&srcid=0425bo2MPKJyZ02NL8P3szS2#rd",
-                "thumb_url" => "https://mp.weixin.qq.com/mp/qrcode?scene=10000004&size=102&__biz=MzUyOTE2MDMzMg==&mid=100000004&idx=1&sn=e9c95e8d93624d6ff03a382e5426667f&send_time="
-            )
-        );
-        $ret = comm_curl_request($url, json_encode($postString, JSON_UNESCAPED_UNICODE));
-        return $ret;
+     
+    public static function sendMsg($json) {
+        $token = self::check_token();
+        $url = 'https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' . $token;
+        $postString = $json;
+        $wx_auth_ret = json_decode(comm_curl_request($url, json_encode($postString, JSON_UNESCAPED_UNICODE)));
+        return $wx_auth_ret;
     }
 }
-
-
-
-
 
 
 
