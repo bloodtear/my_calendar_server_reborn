@@ -1,6 +1,6 @@
 <?php
 namespace my_calendar_server_reborn\database;
-use my_calendar_server_reborn\Database as fdb;
+use framework\Database as fdb;
 
 class Db_setting extends fdb\Database_table {
     const STATUS_NORMAL = 0;
