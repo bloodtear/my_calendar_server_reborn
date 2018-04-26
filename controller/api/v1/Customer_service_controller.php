@@ -22,6 +22,7 @@ class Customer_service_controller extends \my_calendar_server_reborn\controller\
         }
         
         $input = file_get_contents('php://input');
+        \framework\Logging::l("input", json_encode($input));
         
         $customer_msg = new app\Customer_service(json_decode($input,true));
         $openid = $customer_msg->FromUserName();
