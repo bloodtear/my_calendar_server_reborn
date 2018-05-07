@@ -55,13 +55,13 @@ class Db_custom_activity_type extends fdb\Database_table {
     
      
     public static function my_types($userid){
-        
         $my_subscribed_type = "
             select 
                 b.*, 
                 0 as editable ,
                 1 as subscribed,
-                count(act.id) num
+                count(act.id) num,
+                t.avatar avatar_name
             from 
                     my_calendar_subscribe_type a 
             inner join 
@@ -72,6 +72,10 @@ class Db_custom_activity_type extends fdb\Database_table {
                 my_calendar_activity act
             on 
                     act.type = a.typeid
+			left join
+				my_calendar_tempuser t
+			on
+				t.id = b.tempid
             where 
                     a.tempid = $userid
             group by 
@@ -83,7 +87,8 @@ class Db_custom_activity_type extends fdb\Database_table {
                 c.*, 
                 1 as editable ,
                 0 as subscribed,
-                count(z.id) num
+                count(z.id) num,
+				0 as avatar_name
             from 
                 my_calendar_custom_activity_types c 
             left join 

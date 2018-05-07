@@ -506,14 +506,14 @@ class Activity {
     }
     
     
-    public static function get_my_list_by_type($userid, $choosed_type) {
+    public static function get_my_list_by_type($userid, $choosed_type, $entrance) {
         
         if ($choosed_type == -1) {
             $my_list = self::my_joined_list($userid);
         }else if ($choosed_type == -2) {
             $my_list = self::my_subscribed_list($userid);
         }else if ($choosed_type == 0) {
-            $my_list = self::my_all_list($userid);
+            $my_list = self::my_all_list($userid, $entrance);
         }else {
             $my_list = self::my_list_by_type($userid, $choosed_type);
         }
@@ -533,8 +533,8 @@ class Activity {
         return database\Db_activity::my_subscribed_list($userid);
     }
     
-    public static function my_all_list($userid) {
-        return database\Db_activity::my_all_list($userid);
+    public static function my_all_list($userid, $entrance) {
+        return database\Db_activity::my_all_list($userid, $entrance);
     }
     
     public static function my_list_by_type($userid, $choosed_type) {

@@ -35,7 +35,7 @@ class Sign {
         return Tempuser::oneById($userid)->packInfo();
     }
     public function sheet() {
-        return json_decode($this->mSummary["sheet"]);
+        return json_decode($this->mSummary["sheet"], JSON_UNESCAPED_UNICODE);
     }
     public function modify_time() {
         return date("Y-m-d H:i:s",$this->mSummary["modify_time"]);
@@ -66,12 +66,12 @@ class Sign {
     public function save() {
         $id = $this->id();
         if ($id == 0) {
-            $id = database\Db_sign::inst()->add($this->activity(), $this->user(), json_encode($this->sheet()), $this->notice(), $this->modify_time_stamp());
+            $id = database\Db_sign::inst()->add($this->activity(), $this->user(), json_encode($this->sheet(), JSON_UNESCAPED_UNICODE), $this->notice(), $this->modify_time_stamp());
             if ($id !== false) {
                 $this->mSummary["id"] = $id;
             }
         } else {
-            $id = database\Db_sign::inst()->modify($this->id(), $this->activity(), $this->user(), json_encode($this->sheet()), $this->notice(), $this->modify_time_stamp());
+            $id = database\Db_sign::inst()->modify($this->id(), $this->activity(), $this->user(), json_encode($this->sheet(), JSON_UNESCAPED_UNICODE), $this->notice(), $this->modify_time_stamp());
         }
         return $id;
     }

@@ -44,8 +44,10 @@ class Activity_controller extends \my_calendar_server_reborn\controller\api\v1_b
     //列出此人所有相关的activity， 默认choosed_type = 0, 还有此人加入的活动
         $choosed_type = get_request("choosed_type", 0);
         $userid = get_session('userid');
+        $entrance = get_request('entrance', 0);
 
-        $my_list = app\Activity::get_my_list_by_type($userid, $choosed_type);
+        \framework\Logging::d("entrance", ($entrance));
+        $my_list = app\Activity::get_my_list_by_type($userid, $choosed_type, $entrance);
         $thiz_type = ($choosed_type != 0 ? app\Activity_type::view_by_user($choosed_type, $userid) : null);
         
         \framework\Logging::d("ret", json_encode($my_list));

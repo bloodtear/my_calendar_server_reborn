@@ -75,7 +75,9 @@ class Db_activity extends fdb\Database_table {
     / 长查询
     /*******************/
       
-    public static function my_all_list($userid){
+    public static function my_all_list($userid, $entrance){
+		\framework\Logging::l('ENT', $entrance);
+		$order = ($entrance == 1 ? "order by begintime " : "order by begintime desc");
         // 1: 我创建的 单体
         // 2: 我加入的 单体
         // 3: 我关注的 单体
@@ -225,8 +227,7 @@ class Db_activity extends fdb\Database_table {
             $my_subscribed
                 union
             $my_subscribed_type 
-            order by 
-                endtime desc;";
+            $order";
         return Db_base::inst()->do_query($sql);
     }
     
@@ -263,7 +264,7 @@ class Db_activity extends fdb\Database_table {
         group by 
             a.id
         order by 
-            a.endtime desc;
+            a.begintime desc;
         ";
         return Db_base::inst()->do_query($sql);
     }
@@ -305,7 +306,7 @@ class Db_activity extends fdb\Database_table {
         group by 
             f.activity
         order by 
-            d.endtime desc;
+            d.begintime desc;
         ";
         return Db_base::inst()->do_query($sql);
     }    
@@ -347,7 +348,7 @@ class Db_activity extends fdb\Database_table {
             group by 
                 a.activity
             order by 
-                b.endtime desc;
+                b.begintime desc;
             ";
         return Db_base::inst()->do_query($sql);
     }
@@ -385,7 +386,7 @@ class Db_activity extends fdb\Database_table {
         GROUP BY
             a.id
         order by 
-            a.endtime desc";
+            a.begintime desc";
         return Db_base::inst()->do_query($sql);
     }
 
