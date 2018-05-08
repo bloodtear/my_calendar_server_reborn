@@ -107,7 +107,7 @@ class Activity_controller extends \my_calendar_server_reborn\controller\api\v1_b
     public function view() {
         $id = get_request("id");
         $userid = get_session('userid');
-        
+		\framework\Logging::d("id", ($id));
         $editable   = false;
         $subscribe  = false;
         $joined     = false;

@@ -68,7 +68,7 @@ class Wxapi {
         \framework\Logging::d("scene", $scene);
         $url = 'https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=' . $wx_acess_token;
         $postString = array(
-            "path" => $page,
+            "page" => $page,
             "scene" => $scene,
             "width" => 430
         );
