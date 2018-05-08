@@ -31,6 +31,10 @@ class Activity_type_controller extends \my_calendar_server_reborn\controller\api
         $pub = get_request("pub");
 
         $userid = get_session('userid');
+		$ret = app\Activity_type::check_exist($userid, $title);
+		if($ret) {
+			return array('op' => 'fail', "code" => '012012', "reason" => '此分类名称已经存在');
+		}
         if ($type_id != 0) {
             $ret = app\Activity_type::modify($type_id, $title, $pub);
         }else {

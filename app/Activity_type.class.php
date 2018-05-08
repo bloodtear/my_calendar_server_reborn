@@ -103,6 +103,10 @@ class Activity_type {
         $summary = database\Db_custom_activity_type::inst()->get($id);
         return new Activity_type($summary);
     }
+    public static function check_exist($userid, $title) {
+        $summary = database\Db_custom_activity_type::inst()->check_exist($userid, $title);
+        return $summary ? true : false;
+    }
 
     public static function all() {
         $items = database\Db_custom_activity_type::inst()->all();

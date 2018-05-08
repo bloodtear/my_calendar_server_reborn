@@ -17,6 +17,10 @@ class Db_custom_activity_type extends fdb\Database_table {
         parent::__construct(MYSQL_PREFIX . "custom_activity_types");
     }
 
+    public function check_exist($userid, $title) {
+        return $this->get_one("tempid = '$userid' and title = '$title'");
+    }
+	
     public function get($id) {
         $id = (int)$id;
         return $this->get_one("id = $id");
