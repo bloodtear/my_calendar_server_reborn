@@ -289,7 +289,7 @@ class Activity {
 
     public function make_detail_qcode($id){
         $page = "pages/activity/index";
-        $scene = "id=$id";
+        $scene = "?id=$id";
         $imgsrc = Wxapi::get_wx_acode($page, $scene);
         $ret = Upload::save_qcode($imgsrc, $id);
         return $ret;
